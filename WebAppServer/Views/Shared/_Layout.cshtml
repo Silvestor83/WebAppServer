@@ -1,0 +1,71 @@
+﻿@{
+    
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebCamApp</title>
+    @Styles.Render("~/bundles/css")
+    
+
+</head>
+<body>
+    <div class="wrapper container">
+        <header>
+            <div class="navbar">
+                <a href=@Url.Action("Index", "Home") class="brand"><b><span class="orange">W</span>ebCamApp</b></a>               
+                <div class="pull-right login">
+                    <a href=@Url.Action("Index", "Home") class="">Регистрация</a>
+                    <a href=@Url.Action("Index", "Home") class="">Вход</a>
+                </div>         
+            </div>
+            <nav class="navbar navbar-default">
+                <ul class="nav nav-pills nav-justified">
+                    <li class="@ViewBag.Home"><a href=@Url.Action("Index", "Home")>Главная</a></li>                    
+                    <li class="@ViewBag.About"><a href=@Url.Action("About", "Home")>Описание</a></li>                    
+                    <li class="@ViewBag.Download"><a href=@Url.Action("Download", "Home")>Загрузить</a></li>                    
+                    <li class="@ViewBag.Data"><a href=@Url.Action("Data", "Home")>Данные</a></li>                    
+                    <li class="@ViewBag.Contact"><a href=@Url.Action("Contact", "Home")>Контакты</a></li>                    
+                </ul>
+            </nav>
+        </header>
+        <section></section>
+        <footer></footer>
+    </div>
+
+
+    <div class="navbar navbar-inverse">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                    <li>@Html.ActionLink("About", "About", "Home")</li>
+                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                </ul>
+                @Html.Partial("_LoginPartial")
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>
