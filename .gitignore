@@ -189,10 +189,5 @@ _Pvt_Extensions/
 ModelManifest.xml
 
 # Specific project files
-WebAppServer/WebAppDesign/design/fonts/
-WebAppServer/WebAppDesign/design/images/
-WebAppServer/WebAppDesign/design/js/
-WebAppServer/WebAppDesign/design/css/bootstrap*
-WebAppServer/WebAppDesign/src/less/bootstrap/
-WebAppServer/*.ico
+
 
