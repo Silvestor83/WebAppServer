@@ -46,7 +46,7 @@ namespace WebAppServer
             // Configure validation logic for usernames
             manager.UserValidator = new UserValidator<ApplicationUser>(manager)
             {
-                AllowOnlyAlphanumericUserNames = false,
+                AllowOnlyAlphanumericUserNames = true,
                 RequireUniqueEmail = true
             };
 
@@ -54,10 +54,10 @@ namespace WebAppServer
             manager.PasswordValidator = new PasswordValidator
             {
                 RequiredLength = 6,
-                RequireNonLetterOrDigit = true,
+                RequireNonLetterOrDigit = false,
                 RequireDigit = true,
-                RequireLowercase = true,
-                RequireUppercase = true,
+                RequireLowercase = false,
+                RequireUppercase = false,
             };
 
             // Configure user lockout defaults

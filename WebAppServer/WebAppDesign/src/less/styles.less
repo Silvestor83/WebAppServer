@@ -2,7 +2,7 @@
 @import "variables.less";
 
 body {
-    background: url(../images/bg.jpg) #0D0D0D center top no-repeat;
+    background: url(../images/bg.jpg) #0d0d0d center top no-repeat;
 }
 
 .orange {
@@ -11,19 +11,19 @@ body {
 
 .navbar {
     border: none;
-
 }
 
 nav {
     li {
         padding: 1px;
     }
+
     a {
         color: #0D0D0D;
     }
 }
 
-header div {
+#Logo {
     margin: 10px 0;
 }
 
@@ -50,11 +50,35 @@ a {
     }
 }
 
-.login {
+.registerLogin {
     margin-top: 22px;
 
     a {
         margin-right: 20px;
         margin-left: 20px;
     }
+}
+
+.nav-justified {
+
+    > li {
+        > a {
+            margin-bottom: 0px;
+        }
+    }
+}
+
+.modal-footer {
+    margin-top: 0;
+}
+
+@media (max-width: 767px) {
+    .header {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+.close {
+    opacity: 0.4;
 }

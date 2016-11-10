@@ -9,7 +9,8 @@ namespace WebAppServer
 		public static void RegisterBundles(BundleCollection bundles)
 		{
 			bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
-							"~/WebAppDesign/design/js/jquery-{version}.js"));
+							"~/WebAppDesign/design/js/jquery-{version}.js",
+							"~/WebAppDesign/design/js/jquery.unobtrusive-ajax.js"));
 
 			bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
 							"~/WebAppDesign/design/js/jquery.validate*"));
@@ -19,7 +20,9 @@ namespace WebAppServer
 						 "~/WebAppDesign/design/js/respond.js"));
 
 			bundles.Add(new StyleBundle("~/bundles/css").Include(						 
-						 "~/WebAppDesign/design/css/styles.css"));
+						 "~/WebAppDesign/design/css/styles.css",
+						 "~/WebAppDesign/design/css/normalize.css"
+						 ));
 		}
 	}
 }

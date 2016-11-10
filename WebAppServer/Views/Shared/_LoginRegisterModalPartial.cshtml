@@ -1,0 +1,59 @@
+﻿@if (!Request.IsAuthenticated)
+{
+    <!-- HTML-код модального окна входа-->
+    <div id="register" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                @using (Ajax.BeginForm("Register", "Account", null, new AjaxOptions { UpdateTargetId = "switchRegisterModal" },
+                    new { @class = "form-horizontal" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <!-- Заголовок модального окна -->
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title">Регистрация</h4>
+                    </div>
+                    <!-- Основное содержимое модального окна -->
+                    <div class="modal-body" id="switchRegisterModal">
+                        @Html.Partial("_RenderModalPartial")
+                    </div>
+                    <!-- Футер модального окна -->
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+
+    <!-- HTML-код модального окна регистрации-->
+    <div id="login" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                @using (Ajax.BeginForm("Login", "Account", new AjaxOptions { UpdateTargetId = "results" },
+                    new { @class = "form-horizontal" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <!-- Заголовок модального окна -->
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title">Вход</h4>
+                    </div>
+                    <!-- Основное содержимое модального окна -->
+                    <div class="modal-body" id="switchLoginModal">
+                        @Html.Partial("_LoginModalPartial")
+                    </div>
+                    <!-- Футер модального окна -->
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Войти</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+
+
+

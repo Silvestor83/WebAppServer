@@ -25,6 +25,8 @@ namespace WebAppServer
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+					 // TODO 
+					 //Разобраться с переадрессацией при запросе страницы с ограничением прав доступа
                 LoginPath = new PathString("/Account/Login"),
                 Provider = new CookieAuthenticationProvider
                 {
