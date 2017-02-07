@@ -1,0 +1,13 @@
+﻿@{
+    ViewBag.Title = "Галерея";
+    ViewBag.Galery = "active";
+}
+
+<h2>Галерея</h2>
+<a href="@Url.Action("GetFileImage","Manage")" class="fancybox" data-fancybox-group="gallery" title="Sample title"><img src="@Url.Action("GetFileImage","Manage")" />Привет!</a>
+<a href="@Url.Action("GetTemp","Manage")" class="fancybox" data-fancybox-group="gallery" title="Sample title"><img src="@Url.Action("GetFileImage","Manage")" />Привет!</a>
+<img src="@Url.Content(@Server.MapPath("~/App_Data/Images/8e33e1a2-08f5-4990-8111-b743f3830609/0.gif"))" title="Pic"/>
+@section FancyBox{
+    @Scripts.Render("~/bundles/fancyBox")
+}
+

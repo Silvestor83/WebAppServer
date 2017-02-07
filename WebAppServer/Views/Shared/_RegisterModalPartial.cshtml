@@ -1,0 +1,60 @@
+﻿@model WebAppServer.Models.RegisterViewModel
+
+@using (Ajax.BeginForm("Register", "Account", null, new AjaxOptions
+{
+    UpdateTargetId = "switchRegisterModal",
+    OnSuccess = "FixUnobtrusiveValidate('#switchRegisterModal')"
+},
+    new { @class = "form-horizontal"}))
+{
+    @Html.AntiForgeryToken()
+    <!-- Заголовок модального окна -->
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title">Регистрация</h4>
+    </div>
+    <!-- Основное содержимое модального окна -->
+    <div class="modal-body">
+        @Html.ValidationSummary(true, null, new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(m => m.Login, "Имя:", new { @class = "col-sm-3 control-label" })
+            <div class="col-sm-9">
+                @Html.TextBoxFor(m => m.Login, new { @class = "form-control" })
+            </div>
+            <div class="col-sm-12">
+                @Html.ValidationMessageFor(m => m.Login, null, new { @class = "text-danger pull-right" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.Email, "Эл. почта:", new { @class = "col-sm-3 control-label" })
+            <div class="col-sm-9">
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+            </div>
+            <div class="col-sm-12">
+                @Html.ValidationMessageFor(m => m.Email, null, new { @class = "text-danger pull-right" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.Password, "Пароль:", new { @class = "col-sm-3 control-label" })
+            <div class="col-sm-9">
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+            </div>
+            <div class="col-sm-12">
+                @Html.ValidationMessageFor(m => m.Password, null, new { @class = "text-danger pull-right" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.ConfirmPassword, "Подтвердить пароль:", new { @class = "col-sm-3 control-label" })
+            <div class="col-sm-9">
+                @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
+            </div>
+            <div class="col-sm-12">
+                @Html.ValidationMessageFor(m => m.ConfirmPassword, null, new { @class = "text-danger pull-right" })
+            </div>
+        </div>
+    </div>
+    <!-- Футер модального окна -->
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+    </div>
+}

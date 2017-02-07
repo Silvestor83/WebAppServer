@@ -6,13 +6,37 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebCamApp</title>
+    <title>WebCamApp - @ViewBag.Title</title>
     @Styles.Render("~/bundles/css")
-
+    @RenderSection("FancyBox", false)
 
 </head>
+
 <body>
-    @Html.Partial("_LoginRegisterModalPartial")
+    @if (!Request.IsAuthenticated)
+    {
+    <!-- HTML-код модального окна регистрации-->
+        <div id="register" class="modal fade" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content" id="switchRegisterModal">
+
+                    @Html.Partial("_RegisterModalPartial")
+
+                </div>
+            </div>
+        </div>
+    <!-- HTML-код модального окна входа-->
+        <div id="login" class="modal fade" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content" id="switchLoginModal">
+
+                    @Html.Partial("_LoginModalPartial")
+
+                </div>
+            </div>
+        </div>
+    }
+
     <div class="wrapper container header">
         <header>
             <div class="navbar collapse navbar-collapse hidden-xs" id="Logo">
@@ -31,9 +55,17 @@
                 <div class="collapse navbar-collapse">
                     <ul class="nav nav-pills nav-justified">
                         <li class="@ViewBag.Home"><a href=@Url.Action("Index", "Home")>Главная</a></li>
-                        <li class="@ViewBag.About"><a href=@Url.Action("About", "Home")>Описание</a></li>
                         <li class="@ViewBag.Download"><a href=@Url.Action("Download", "Home")>Загрузить</a></li>
-                        <li class="@ViewBag.Data"><a href=@Url.Action("Data", "Home")>Данные</a></li>
+                        @if (!Request.IsAuthenticated)
+                        {
+                            <li class="@ViewBag.About"><a href=@Url.Action("About", "Home")>Описание</a></li>
+                            <li class="@ViewBag.Data"><a href=@Url.Action("Data", "Home")>Данные</a></li>
+                        }
+                        else
+                        {
+                            <li class="@ViewBag.Settings"><a href=@Url.Action("Settings", "Manage")>Настройки</a></li>
+                            <li class="@ViewBag.Galery"><a href=@Url.Action("Galery", "Manage")>Галерея</a></li>
+                        }
                         <li class="@ViewBag.Contact"><a href=@Url.Action("Contact", "Home")>Контакты</a></li>
                     </ul>
                 </div>
@@ -57,9 +89,25 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/fancyBoxJs")
+
     @if (!Request.IsAuthenticated)
     {
         @Scripts.Render("~/bundles/jqueryval")
     }
+    <script>
+        function FixUnobtrusiveValidate(sel) {
+            $(sel).removeData("validator");
+            $(sel).removeData("unobtrusiveValidation");
+            $.validator.unobtrusive.parse(sel);
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('.fancybox').fancybox();
+            $("a[href$='.jpg'],a[href$='.jpeg'],a[href$='.png'],a[href$='.gif'],a[href$='Image']").attr('rel', 'gallery').fancybox();
+        });
+    </script>
+
 </body>
 </html>

@@ -43,24 +43,24 @@ namespace WebAppServer.Models
 
 	public class ForgotViewModel
 	{
-		[Required]
-		[Display(Name = "Email")]
+		[Required(ErrorMessage = "Поле не должно быть пустым.")]
+		[EmailAddress(ErrorMessage = "Поле не содержит допустимый адрес электронной почты.")]
+		[Display(Name = "Эл. почта")]
 		public string Email { get; set; }
 	}
 
 	public class LoginViewModel
 	{
-		[Required]
-		[Display(Name = "Email")]
-		[EmailAddress]
-		public string Email { get; set; }
+		[Required(ErrorMessage = "Поле не должно быть пустым.")]
+		[Display(Name = "Имя")]
+		public string Login { get; set; }
 
-		[Required]
+		[Required(ErrorMessage = "Поле не должно быть пустым.")]
 		[DataType(DataType.Password)]
-		[Display(Name = "Password")]
+		[Display(Name = "Пароль")]
 		public string Password { get; set; }
 
-		[Display(Name = "Remember me?")]
+		[Display(Name = "Запомнить на этом компьютере?")]
 		public bool RememberMe { get; set; }
 	}
 
@@ -72,12 +72,13 @@ namespace WebAppServer.Models
 		[MaxLength(50, ErrorMessage = "Длина должна быть менее 50 символов.")]
 		[RegularExpression(@"[a-zA-Z0-9@_\.]*", ErrorMessage = "Недопустимые символы в имени.")]
 		[Display(Name = "Имя")]
-		//[Remote("IsExists", "Account", ErrorMessage = "Данное имя уже занято.")]
+		[Remote("ValidateUser", "Account", ErrorMessage = "Данное имя уже занято.")]
 		public string Login { get; set; }
 
 		[Required(ErrorMessage = "Поле не должно быть пустым.")]
 		[EmailAddress(ErrorMessage = "Поле не содержит допустимый адрес электронной почты.")]
 		[Display(Name = "Эл. почта")]
+		[Remote("ValidateEmail", "Account", ErrorMessage = "Данный адрес уже используется.")]
 		public string Email { get; set; }
 
 		[Required(ErrorMessage = "Поле не должно быть пустым.")]
@@ -95,19 +96,18 @@ namespace WebAppServer.Models
 	public class ResetPasswordViewModel
 	{
 		[Required(ErrorMessage = "Поле должно быть заполнено.")]
-		[EmailAddress]
-		[Display(Name = "Email")]
-		public string Email { get; set; }
+		[Display(Name = "Имя")]
+		public string Login { get; set; }
 
-		[Required]
-		[StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+		[Required(ErrorMessage = "Поле не должно быть пустым.")]
+		[StringLength(100, ErrorMessage = "{0} должен быть не менее {2} символов.", MinimumLength = 6)]
 		[DataType(DataType.Password)]
-		[Display(Name = "Password")]
+		[Display(Name = "Пароль")]
 		public string Password { get; set; }
 
 		[DataType(DataType.Password)]
-		[Display(Name = "Confirm password")]
-		[System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+		[Display(Name = "Подтвердить пароль")]
+		[System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessage = "Пароль и подтверждение пароля должны совпадать.")]
 		public string ConfirmPassword { get; set; }
 
 		public string Code { get; set; }
