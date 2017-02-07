@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
@@ -8,6 +10,8 @@ using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.Provider;
+using WebAppServer.Filters;
 using WebAppServer.Models;
 
 namespace WebAppServer.Controllers
@@ -66,28 +70,39 @@ namespace WebAppServer.Controllers
 		[HttpPost]
 		[AllowAnonymous]
 		[ValidateAntiForgeryToken]
-		public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
+		public async Task<ActionResult> Login(LoginViewModel model)
 		{
 			if (!ModelState.IsValid)
 			{
-				return View(model);
+				return PartialView("_LoginModalPartial");
 			}
 
 			// This doesn't count login failures towards account lockout
 			// To enable password failures to trigger account lockout, change to shouldLockout: true
-			var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
+			var result = await SignInManager.PasswordSignInAsync(model.Login, model.Password, model.RememberMe, shouldLockout: true);
 			switch (result)
 			{
 				case SignInStatus.Success:
-					return RedirectToLocal(returnUrl);
+					return JavaScript("window.location = '" + Url.Action("Index", "Home") + "'");
 				case SignInStatus.LockedOut:
-					return View("Lockout");
+					return JavaScript("window.location = '" + Url.Action("Lockout", "Account") + "'");
 				case SignInStatus.RequiresVerification:
-					return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+				//return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
 				case SignInStatus.Failure:
 				default:
-					ModelState.AddModelError("", "Invalid login attempt.");
-					return View(model);
+					var user = await UserManager.FindByNameAsync(model.Login);
+					if (user != null)
+					{
+						int count = UserManager.MaxFailedAccessAttemptsBeforeLockout - (await UserManager.GetAccessFailedCountAsync(user.Id));
+						if (count < 4)
+						{
+							ModelState.AddModelError("",
+								"У вас " + (count == 1 ? "осталась " + count + " попыткa" : "осталось " + count + " попытки") +
+								", после чего ваша учетная запись будет заблокирована.");
+						}
+					}
+					ModelState.AddModelError("", "Имя или пароль введены неправильно.");
+					return PartialView("_LoginModalPartial");
 			}
 		}
 
@@ -155,30 +170,51 @@ namespace WebAppServer.Controllers
 				var result = await UserManager.CreateAsync(user, model.Password);
 				if (result.Succeeded)
 				{
-					await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+					string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+					var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+					string subject = "Подтверждение учетной записи";
+					string body = string.Format("Вы можете подтвердить вашу учетную запись пройдя по данной ссылке: " +
+														 "<a target=\"_blank\" href=\"{0}\" title=\"Ссылка\">Ссылка</a>", callbackUrl);
+					try
+					{
+						await UserManager.SendEmailAsync(user.Id, subject, body);
+					}
+					catch (SmtpException)
+					{
+						UserManager.Delete(user);
+						ModelState.AddModelError("", "Не удалось отправить письмо с подтверждением регистрации. Проверьте адрес или повторите попытку позже.");
+						return PartialView("_RegisterModalPartial");
+					}
+					//await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
 
-					// For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
-					// Send an email with this link
-					// string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-					// var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-					// await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
-
-					return RedirectToAction("Index", "Home");
+					return JavaScript("window.location = '" + Url.Action("Index", "Home") + "'");
 				}
 				AddErrors(result);
 			}
 
 			// If we got this far, something failed, redisplay form
-			return PartialView("_RenderModalPartial");
+			return PartialView("_RegisterModalPartial");
 		}
 
 		//
-		// GET: /Account/IsExists
+		// GET: /Account/ValidateUser
+		[AllowAnonymous]
 		[HttpGet]
-		public JsonResult IsExists(string Login)
+		public async Task<JsonResult> ValidateUser(string Login)
 		{
-			var app = _userManager.FindByNameAsync(Login).Result;
-			var result = (app == null);
+			var user = await UserManager.FindByNameAsync(Login);
+			bool result = (user == null);
+			return Json(result, JsonRequestBehavior.AllowGet);
+		}
+
+		//
+		// GET: /Account/ValidateEmail
+		[AllowAnonymous]
+		[HttpGet]
+		public async Task<JsonResult> ValidateEmail(string Email)
+		{
+			var email = await UserManager.FindByEmailAsync(Email);
+			bool result = (email == null);
 			return Json(result, JsonRequestBehavior.AllowGet);
 		}
 
@@ -191,7 +227,20 @@ namespace WebAppServer.Controllers
 			{
 				return View("Error");
 			}
+
 			var result = await UserManager.ConfirmEmailAsync(userId, code);
+			if (result.Succeeded && !Directory.Exists("~/App_Data/Images/" + userId))
+			{
+				string path = HttpContext.Server.MapPath("~/App_Data/Images/" + userId);
+				try
+				{
+					Directory.CreateDirectory(path);
+				}
+				catch
+				{
+					return View("Error");
+				}
+			}
 			return View(result.Succeeded ? "ConfirmEmail" : "Error");
 		}
 
@@ -236,7 +285,7 @@ namespace WebAppServer.Controllers
 		[AllowAnonymous]
 		public ActionResult ForgotPasswordConfirmation()
 		{
-			return View();
+			return PartialView("_ForgotModalPartial");
 		}
 
 		//
@@ -244,7 +293,7 @@ namespace WebAppServer.Controllers
 		[AllowAnonymous]
 		public ActionResult ForgotLoginPassword()
 		{
-			return PartialView();
+			return PartialView("_ForgotModalPartial");
 		}
 
 		//
@@ -252,9 +301,36 @@ namespace WebAppServer.Controllers
 		[HttpPost]
 		[AllowAnonymous]
 		[ValidateAntiForgeryToken]
-		public ActionResult ForgotLoginPassword(LoginViewModel model)
+		public async Task<ActionResult> ForgotLoginPassword(ForgotViewModel model)
 		{
-			return View();
+			if (ModelState.IsValid)
+			{
+				var user = await UserManager.FindByEmailAsync(model.Email);
+
+				if (user != null && (await UserManager.IsEmailConfirmedAsync(user.Id)))
+				{
+					string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+					var callbackUrl = Url.Action("ResetPassword", "Account",
+						new { code = code }, protocol: Request.Url.Scheme);
+					try
+					{
+						await UserManager.SendEmailAsync(user.Id,
+							"Восстановление данных",
+							"<p>Ваше имя для входа в систему: " + user.UserName + "</p><br/>" +
+							"<p>Для сброса вашего пароля необходимо проийти по следующей ссылке: " +
+							"<a target=\"_blank\" href=\"" + callbackUrl + "\">Cбросить</a></p>");
+					}
+					catch (SmtpException)
+					{
+						ModelState.AddModelError("", "Не удалось отправить письмо. Проверьте адрес или повторите попытку позже.");
+						return PartialView("_ForgotModalPartial");
+					}
+					return JavaScript("window.location = '" + Url.Action("ForgotPasswordConfirmation", "Account") + "'");
+				}
+				ModelState.AddModelError("", "Пользователь с таким адрессом электронной почты не существует или учетная запись не подтверждена.");
+			}
+			// If we got this far, something failed, redisplay form
+			return PartialView("_ForgotModalPartial");
 		}
 
 		//
@@ -264,6 +340,33 @@ namespace WebAppServer.Controllers
 		{
 			return code == null ? View("Error") : View();
 		}
+
+		//
+		// GET: /Account/ResetPassword
+		[AllowAnonymous]
+		public async Task<ActionResult> Test()
+		{
+			var user = UserManager.FindById("8e33e1a2-08f5-4990-8111-b743f3830609");
+
+
+			int result = await TestAsynk();
+			string tok = UserManager.GenerateUserToken("", "8e33e1a2-08f5-4990-8111-b743f3830609");
+			ViewBag.Token = tok;
+			return View();
+		}
+
+		private async Task<int> TestAsynk()
+		{
+			int a = 45;
+			int b = 26;
+			return await TestAsynk2(a, b);
+		}
+
+		private async Task<int> TestAsynk2(int a, int b)
+		{
+			return await new Task<int>(() => a + b);
+		}
+
 
 		//
 		// POST: /Account/ResetPassword
@@ -276,19 +379,20 @@ namespace WebAppServer.Controllers
 			{
 				return View(model);
 			}
-			var user = await UserManager.FindByNameAsync(model.Email);
-			if (user == null)
+			var user = await UserManager.FindByNameAsync(model.Login);
+			if (user != null)
 			{
-				// Don't reveal that the user does not exist
-				return RedirectToAction("ResetPasswordConfirmation", "Account");
+				var result = await UserManager.ResetPasswordAsync(user.Id, model.Code, model.Password);
+				if (result.Succeeded)
+				{
+					return RedirectToAction("ResetPasswordConfirmation", "Account");
+				}
+				AddErrors(result);
+				return View();
 			}
-			var result = await UserManager.ResetPasswordAsync(user.Id, model.Code, model.Password);
-			if (result.Succeeded)
-			{
-				return RedirectToAction("ResetPasswordConfirmation", "Account");
-			}
-			AddErrors(result);
-			return View();
+			// Don't reveal that the user does not exist
+			ModelState.AddModelError("", "Пользователь с заданным именем не найден.");
+			return View(model);
 		}
 
 		//
@@ -427,6 +531,14 @@ namespace WebAppServer.Controllers
 		// GET: /Account/ExternalLoginFailure
 		[AllowAnonymous]
 		public ActionResult ExternalLoginFailure()
+		{
+			return View();
+		}
+
+		//
+		// GET: /Account/Lockout
+		[AllowAnonymous]
+		public ActionResult Lockout()
 		{
 			return View();
 		}

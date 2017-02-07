@@ -16,9 +16,9 @@ namespace WebAppServer.Models.Validation
 		{
 			if (value.ToString() == "Admin")
 			{
-				return true;
+				return false;
 			}
-			return false;
+			return true;
 		}
 	}
 }

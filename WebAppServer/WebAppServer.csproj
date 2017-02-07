@@ -161,6 +161,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Filters\SummaryException.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -185,7 +186,9 @@
     <Content Include="WebAppDesign\design\images\bg.jpg" />
     <Content Include="WebAppDesign\design\js\bootstrap.js" />
     <Content Include="WebAppDesign\design\js\bootstrap.min.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -227,9 +230,12 @@
     <Content Include="Views\Shared\_LoginPartial_2.cshtml" />
     <Content Include="Views\Shared\_LoginPartial_1.cshtml" />
     <Content Include="Views\Shared\_LoginRegisterModalPartial.cshtml" />
-    <Content Include="Views\Account\ForgotLoginPassword.cshtml" />
+    <Content Include="Views\Shared\_ForgotModalPartial.cshtml" />
     <Content Include="Views\Shared\_LoginModalPartial.cshtml" />
-    <Content Include="Views\Shared\_RenderModalPartial.cshtml" />
+    <Content Include="Views\Shared\_RegisterModalPartial.cshtml" />
+    <Content Include="Views\Account\Test.cshtml" />
+    <Content Include="Views\Manage\Settings.cshtml" />
+    <Content Include="Views\Manage\Galery.cshtml" />
     <None Include="WebAppDesign\design\js\jquery-1.10.2.intellisense.js" />
     <Content Include="WebAppDesign\design\js\jquery-1.10.2.js" />
     <Content Include="WebAppDesign\design\js\jquery-1.10.2.min.js" />

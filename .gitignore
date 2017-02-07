@@ -189,5 +189,6 @@ _Pvt_Extensions/
 ModelManifest.xml
 
 # Specific project files
-
-
+Settings.txt
+App_Data/
+Images/

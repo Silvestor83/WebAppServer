@@ -19,10 +19,16 @@ namespace WebAppServer
 						 "~/WebAppDesign/design/js/bootstrap.js",
 						 "~/WebAppDesign/design/js/respond.js"));
 
-			bundles.Add(new StyleBundle("~/bundles/css").Include(						 
+			bundles.Add(new ScriptBundle("~/bundles/fancyBoxJs").Include(
+						 "~/WebAppDesign/design/js/jquery.fancybox.js"));
+
+			bundles.Add(new StyleBundle("~/bundles/css").Include(
 						 "~/WebAppDesign/design/css/styles.css",
 						 "~/WebAppDesign/design/css/normalize.css"
 						 ));
+
+			bundles.Add(new StyleBundle("~/bundles/fancyBox").Include(
+						 "~/WebAppDesign/design/css/jquery.fancybox.css"));
 		}
 	}
 }
