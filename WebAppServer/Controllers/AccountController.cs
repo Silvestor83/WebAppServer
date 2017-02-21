@@ -171,7 +171,7 @@ namespace WebAppServer.Controllers
 				if (result.Succeeded)
 				{
 					string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-					var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+					var callbackUrl = Url.Action("EmailConfirmed", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
 					string subject = "Подтверждение учетной записи";
 					string body = string.Format("Вы можете подтвердить вашу учетную запись пройдя по данной ссылке: " +
 														 "<a target=\"_blank\" href=\"{0}\" title=\"Ссылка\">Ссылка</a>", callbackUrl);
@@ -187,7 +187,7 @@ namespace WebAppServer.Controllers
 					}
 					//await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
 
-					return JavaScript("window.location = '" + Url.Action("Index", "Home") + "'");
+					return JavaScript("window.location = '" + Url.Action("ConfirmEmail", "Account") + "'");
 				}
 				AddErrors(result);
 			}
@@ -219,9 +219,9 @@ namespace WebAppServer.Controllers
 		}
 
 		//
-		// GET: /Account/ConfirmEmail
+		// GET: /Account/EmailConfirmed
 		[AllowAnonymous]
-		public async Task<ActionResult> ConfirmEmail(string userId, string code)
+		public async Task<ActionResult> EmailConfirmed(string userId, string code)
 		{
 			if (userId == null || code == null)
 			{
@@ -241,7 +241,15 @@ namespace WebAppServer.Controllers
 					return View("Error");
 				}
 			}
-			return View(result.Succeeded ? "ConfirmEmail" : "Error");
+			return View(result.Succeeded ? "EmailConfirmed" : "Error");
+		}
+
+		//
+		// GET: /Account/ConfirmEmail
+		[AllowAnonymous]
+		public async Task<ActionResult> ConfirmEmail()
+		{
+			return View();
 		}
 
 		//
@@ -285,7 +293,7 @@ namespace WebAppServer.Controllers
 		[AllowAnonymous]
 		public ActionResult ForgotPasswordConfirmation()
 		{
-			return PartialView("_ForgotModalPartial");
+			return View();
 		}
 
 		//
@@ -297,7 +305,7 @@ namespace WebAppServer.Controllers
 		}
 
 		//
-		// GET: /Account/ForgotLoginPassword
+		// POST: /Account/ForgotLoginPassword
 		[HttpPost]
 		[AllowAnonymous]
 		[ValidateAntiForgeryToken]
@@ -338,35 +346,8 @@ namespace WebAppServer.Controllers
 		[AllowAnonymous]
 		public ActionResult ResetPassword(string code)
 		{
-			return code == null ? View("Error") : View();
+			return code == null ? View("Error", new ErrorViewModel{Message = "Не удалось сформировать код для сброса пароля"}) : View();
 		}
-
-		//
-		// GET: /Account/ResetPassword
-		[AllowAnonymous]
-		public async Task<ActionResult> Test()
-		{
-			var user = UserManager.FindById("8e33e1a2-08f5-4990-8111-b743f3830609");
-
-
-			int result = await TestAsynk();
-			string tok = UserManager.GenerateUserToken("", "8e33e1a2-08f5-4990-8111-b743f3830609");
-			ViewBag.Token = tok;
-			return View();
-		}
-
-		private async Task<int> TestAsynk()
-		{
-			int a = 45;
-			int b = 26;
-			return await TestAsynk2(a, b);
-		}
-
-		private async Task<int> TestAsynk2(int a, int b)
-		{
-			return await new Task<int>(() => a + b);
-		}
-
 
 		//
 		// POST: /Account/ResetPassword
@@ -388,7 +369,7 @@ namespace WebAppServer.Controllers
 					return RedirectToAction("ResetPasswordConfirmation", "Account");
 				}
 				AddErrors(result);
-				return View();
+				return View(model);
 			}
 			// Don't reveal that the user does not exist
 			ModelState.AddModelError("", "Пользователь с заданным именем не найден.");

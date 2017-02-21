@@ -1,6 +1,5 @@
-﻿@{
+﻿@using WebAppServer.Models
 
-}
 <!DOCTYPE html>
 <html>
 <head>
@@ -20,7 +19,7 @@
             <div class="modal-dialog">
                 <div class="modal-content" id="switchRegisterModal">
 
-                    @Html.Partial("_RegisterModalPartial")
+                    @Html.Partial("_RegisterModalPartial", new RegisterViewModel())
 
                 </div>
             </div>
@@ -30,7 +29,7 @@
             <div class="modal-dialog">
                 <div class="modal-content" id="switchLoginModal">
 
-                    @Html.Partial("_LoginModalPartial")
+                    @Html.Partial("_LoginModalPartial", new LoginViewModel())
 
                 </div>
             </div>
@@ -64,7 +63,7 @@
                         else
                         {
                             <li class="@ViewBag.Settings"><a href=@Url.Action("Settings", "Manage")>Настройки</a></li>
-                            <li class="@ViewBag.Galery"><a href=@Url.Action("Galery", "Manage")>Галерея</a></li>
+                            <li class="@ViewBag.Galery"><a href=@Url.Action("Gallery", "Manage")>Галерея</a></li>
                         }
                         <li class="@ViewBag.Contact"><a href=@Url.Action("Contact", "Home")>Контакты</a></li>
                     </ul>
@@ -89,12 +88,22 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
-    @Scripts.Render("~/bundles/fancyBoxJs")
-
     @if (!Request.IsAuthenticated)
     {
         @Scripts.Render("~/bundles/jqueryval")
     }
+    @if (Request.IsAuthenticated)
+    {
+        @Scripts.Render("~/bundles/fancyBoxJs")
+        // TODO Убрать в частичное представление галереи
+        <script>
+            $(document).ready(function () {
+                $('.fancybox').fancybox();
+                $("a[href$='.jpg'],a[href$='.jpeg'],a[href$='.png'],a[href$='.gif'],a[href$='Image']").attr('rel', 'gallery').fancybox();
+            });
+        </script>
+    }
+
     <script>
         function FixUnobtrusiveValidate(sel) {
             $(sel).removeData("validator");
@@ -102,12 +111,5 @@
             $.validator.unobtrusive.parse(sel);
         }
     </script>
-    <script>
-        $(document).ready(function () {
-            $('.fancybox').fancybox();
-            $("a[href$='.jpg'],a[href$='.jpeg'],a[href$='.png'],a[href$='.gif'],a[href$='Image']").attr('rel', 'gallery').fancybox();
-        });
-    </script>
-
 </body>
 </html>

@@ -90,7 +90,7 @@ namespace WebAppServer.Controllers
 
 		//
 		// GET: /Manage/Galery
-		public async Task<ActionResult> Galery()
+		public async Task<ActionResult> Gallery()
 		{
 			var user = HttpContext.User.Identity.Name;
 

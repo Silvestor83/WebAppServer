@@ -13,6 +13,10 @@ namespace WebAppServer.Controllers
 
 	public class HomeController : Controller
 	{
+		public HomeController()
+		{
+			
+		}
 		private ApplicationUserManager _userManager;
 
 		public ApplicationUserManager UserManager
