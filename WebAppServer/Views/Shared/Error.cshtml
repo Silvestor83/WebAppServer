@@ -1,9 +1,14 @@
-﻿@model System.Web.Mvc.HandleErrorInfo
-
+﻿@model WebAppServer.Models.ErrorViewModel
 @{
     ViewBag.Title = "Ошибка";
 }
 
-<h1 class="text-danger">Ошибка.</h1>
-<h2 class="text-danger">В процессе выполнения запроса произошла ошибка.</h2>
-
+<h2 class="text-danger">Ошибка.</h2>
+@if (Model == null)
+{
+    <h3 class="text-danger">В процессе выполнения запроса произошла ошибка.</h3>
+}
+else
+{
+    <h3 class="text-danger">@Model.Message</h3>
+}
