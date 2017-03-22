@@ -19,16 +19,23 @@ namespace WebAppServer
 						 "~/WebAppDesign/design/js/bootstrap.js",
 						 "~/WebAppDesign/design/js/respond.js"));
 
-			bundles.Add(new ScriptBundle("~/bundles/fancyBoxJs").Include(
-						 "~/WebAppDesign/design/js/jquery.fancybox.js"));
+			bundles.Add(new ScriptBundle("~/bundles/OwlCarouselJS").Include(
+						 "~/WebAppDesign/design/js/owl.carousel.js"));
+
+			bundles.Add(new ScriptBundle("~/bundles/DatePickerJS").Include(
+						 "~/WebAppDesign/design/js/datepicker.js"));
 
 			bundles.Add(new StyleBundle("~/bundles/css").Include(
-						 "~/WebAppDesign/design/css/styles.css",
-						 "~/WebAppDesign/design/css/normalize.css"
+						 "~/WebAppDesign/design/css/styles.css"
+						 //,"~/WebAppDesign/design/css/normalize.css"
 						 ));
 
-			bundles.Add(new StyleBundle("~/bundles/fancyBox").Include(
-						 "~/WebAppDesign/design/css/jquery.fancybox.css"));
+			bundles.Add(new StyleBundle("~/bundles/OwlCarouselCSS").Include(
+						 "~/WebAppDesign/design/css/owl.carousel.css",
+						 "~/WebAppDesign/design/css/owl.theme.default.css"));
+
+			bundles.Add(new StyleBundle("~/bundles/DatePickerCSS").Include(
+						 "~/WebAppDesign/design/css/datepicker.css"));
 		}
 	}
 }

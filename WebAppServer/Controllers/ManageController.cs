@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -15,7 +16,8 @@ namespace WebAppServer.Controllers
 	{
 		private ApplicationSignInManager _signInManager;
 		private ApplicationUserManager _userManager;
-
+		private string[] userImages;
+		
 		public ManageController()
 		{
 		}
@@ -80,7 +82,7 @@ namespace WebAppServer.Controllers
 		public async Task<ActionResult> Settings()
 		{
 			var user = HttpContext.User.Identity.Name;
-			
+
 			if (user != null)
 			{
 				return View();
@@ -96,23 +98,38 @@ namespace WebAppServer.Controllers
 
 			if (user != null)
 			{
+				ViewBag.Id = HttpContext.User.Identity.GetUserId();
+				userImages = Directory.GetFiles(Server.MapPath("~/Images/" + (string)ViewBag.Id))
+					.Select(n => Path.GetFileName(n)).ToArray();
+				ViewBag.userImages = userImages;
 				return View();
 			}
 			return View("Error");
 		}
 
-		public FileResult GetFileImage()
+		//
+		// GET: /Manage/GetImages
+		public async Task<ActionResult> GetImages(string fileName)
 		{
-			string filePath = Server.MapPath("~/App_Data/Images/8e33e1a2-08f5-4990-8111-b743f3830609/0.gif");
+			int position = Array.BinarySearch(userImages, fileName);
 
-			string fileType = "image/gif";
+			if (position == userImages.Length - 1)
+			{
+				return new EmptyResult();
+			}
+			int maxImagesInMessage = 5;
+			int length = userImages.Length - position - 1 < maxImagesInMessage
+				? userImages.Length - position
+				: maxImagesInMessage;
 
-			return File(filePath, fileType);
-		}
+			string[] data = new string[length];
 
-		public string GetTemp()
-		{
-			return "/Images/8e33e1a2-08f5-4990-8111-b743f3830609/0.gif";
+			for (int i = 0; i < data.Length; i++)
+			{
+				data[i] = userImages[position + 1 + i];
+			}
+
+			return Json(new {imageNames = data});
 		}
 
 		//

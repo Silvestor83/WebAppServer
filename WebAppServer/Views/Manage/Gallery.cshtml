@@ -1,13 +1,154 @@
-﻿@{
+﻿@using System.Text
+@{
     ViewBag.Title = "Галерея";
     ViewBag.Galery = "active";
+    string imageName = null;
 }
 
-<h2>Галерея</h2>
-<a href="@Url.Action("GetFileImage","Manage")" class="fancybox" data-fancybox-group="gallery" title="Sample title"><img src="@Url.Action("GetFileImage","Manage")" />Привет!</a>
-<a href="@Url.Action("GetTemp","Manage")" class="fancybox" data-fancybox-group="gallery" title="Sample title"><img src="@Url.Action("GetFileImage","Manage")" />Привет!</a>
-<img src="@Url.Content(@Server.MapPath("~/App_Data/Images/8e33e1a2-08f5-4990-8111-b743f3830609/0.gif"))" title="Pic"/>
-@section FancyBox{
-    @Scripts.Render("~/bundles/fancyBox")
+@section OwlCarouselCSS{
+    @Styles.Render("~/bundles/OwlCarouselCSS")
+    @Styles.Render("~/bundles/DatePickerCSS")
+}
+
+<br />
+
+<div class="input-group input-group-sm col-sm-5 col-md-4 col-lg-3">
+    <input type='text' class="form-control" id="datepicker" data-timepicker="true" data-position="bottom left" placeholder="Выберите ближайшую дату" />
+    <label class="input-group-addon" for="datepicker"><span class="glyphicon glyphicon-calendar" style="font-size: 14px;"></span></label>
+</div>
+<br />
+
+<div class="owl-carousel">
+    @{
+        string[] files = ViewBag.userImages;
+        StringBuilder sb = new StringBuilder("[", files.Length * 25);
+        foreach (string file in files)
+        {
+            sb.Append("'" + file + "'" + ",");
+        }
+        sb.Remove(sb.Length - 1, 1);
+        sb.Append("]");
+        var javascriptArray = sb.ToString();
+    }
+    @for (int i = 0; i < 5 && i < files.Length; i++)
+    {
+        imageName = Path.GetFileName(files[i]);
+        <div>
+            <img src="@Url.Content("~/Images/" + ViewBag.Id + "/" + imageName)" title="Pic" />
+            <div class="panel panel-default">
+                <div class="panel-body" style="text-align: center">@imageName.Split('.')[0]</div>
+            </div>
+        </div>
+    }
+    @*Last empty element for better insertion capability*@
+    <div></div>
+</div>
+
+
+@section OwlCarouselJS{
+    @Scripts.Render("~/bundles/OwlCarouselJS")
+    @Scripts.Render("~/bundles/DatePickerJS")
+
+    <script>
+        $(document).ready(function() {
+            $(".owl-carousel").owlCarousel({
+                items: 1,
+                margin: 10
+            });
+            var userId = "@ViewBag.Id";
+            var imageArray = @Html.Raw(javascriptArray);
+            var lastImageInCarouselName = "@imageName";
+            var firstImageInCarouselName = imageArray[0];
+            // TODO Apply binary search for better perfomance
+            var lastImageInCarouselIndex = imageArray.indexOf(lastImageInCarouselName);
+            var firstImageInCarouselIndex = imageArray.indexOf(firstImageInCarouselName);
+            var itemsInCarousel = 0;
+            var maxImagesToLoad = 6;
+            var $owl = $('.owl-carousel');
+
+            $owl.on('changed.owl.carousel', function(e) {
+                itemsInCarousel = e.item.count;
+                if (e.property.name === 'position' && e.property.value > e.item.count - 2) {
+                    addImageElementsToEnd();
+                } else if (e.property.name === 'position' && e.property.value === 0) {
+                    addImageElementsToBegining();
+                }
+            });
+
+            function addImageElementsToEnd() {
+                if (lastImageInCarouselIndex < imageArray.length - 1) {
+                    var length = imageArray.length - 1 - lastImageInCarouselIndex < maxImagesToLoad
+                        ? imageArray.length - 1 - lastImageInCarouselIndex
+                        : maxImagesToLoad;
+
+                    for (var i = 0; i < length; i++) {
+                        $owl.trigger("add.owl.carousel", [getImageElement(imageArray[lastImageInCarouselIndex + 1]), itemsInCarousel - 1]);
+                        lastImageInCarouselName = imageArray[lastImageInCarouselIndex + 1];
+                        lastImageInCarouselIndex++;
+                        itemsInCarousel++;
+                    }
+                }
+            }
+
+            function addImageElementsToBegining() {
+                if (firstImageInCarouselIndex > 0) {
+                    var length = firstImageInCarouselIndex < maxImagesToLoad ? firstImageInCarouselIndex : maxImagesToLoad;
+                    for (var i = 0; i < length; i++) {
+                        $owl.trigger("add.owl.carousel", [getImageElement(imageArray[firstImageInCarouselIndex - 1]), 0]);
+                        itemsInCarousel++;
+                        firstImageInCarouselIndex--;
+                    }
+                    $owl.trigger("refresh.owl.carousel");
+                    $owl.trigger("to.owl.carousel", [length, 0]);
+                }
+            }
+
+            function addEmptyElementToEnd() {
+                $owl.trigger("add.owl.carousel", [$('<div></div>'), 0]);
+                itemsInCarousel++;
+            }
+
+            function getImageElement(imageName) {
+                var element = $("<div>" +
+                    "<img src='/Images/" + userId + "/" + imageName + "' title='Pic' />" +
+                    "<div class='panel panel-default'>" +
+                    "<div class='panel-body' style='text-align: center'>" + imageName.split(".")[0] + "</div>" +
+                    "</div>");
+                return element;
+            }
+
+            function replaceImages(index) {
+                firstImageInCarouselIndex = index;
+                $owl.trigger("replace.owl.carousel", {});
+                itemsInCarousel = 0;
+                addEmptyElementToEnd();
+                lastImageInCarouselIndex = index - 1;
+                addImageElementsToEnd();
+                addImageElementsToBegining();
+                $owl.trigger("refresh.owl.carousel");
+            }
+
+            $('#datepicker').datepicker({
+                onHide: function(inst, animationCompleted) {
+                    var date = inst.lastSelectedDate;
+                    if (animationCompleted && date) {
+                        var year = date.getFullYear(),
+                            month = (date.getMonth() + 1).toString().length < 2 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1,
+                            day = date.getDate().toString().length < 2 ? "0" + date.getDate() : date.getDate(),
+                            hours = date.getHours().toString().length < 2 ? "0" + date.getHours() : date.getHours(),
+                            minutes = date.getMinutes().toString().length < 2 ? "0" + date.getMinutes() : date.getMinutes();
+                        var dateString = "" + year + "-" + month + "-" + day + "  " + hours + "-" +
+                            minutes + "-" + "00";
+                        for (var i = 0; i < imageArray.length; i++) {
+                            if (dateString < imageArray[i]) {
+                                break;
+                            }
+                        }
+                        replaceImages(i);
+                    }
+                }
+            });
+        });
+    </script>
 }
 
