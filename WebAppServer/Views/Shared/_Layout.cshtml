@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebCamApp - @ViewBag.Title</title>
     @Styles.Render("~/bundles/css")
-    @RenderSection("FancyBox", false)
+    @RenderSection("OwlCarouselCSS", false)
 
 </head>
 
@@ -88,22 +88,12 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("OwlCarouselJS", false)
     @if (!Request.IsAuthenticated)
     {
         @Scripts.Render("~/bundles/jqueryval")
     }
-    @if (Request.IsAuthenticated)
-    {
-        @Scripts.Render("~/bundles/fancyBoxJs")
-        // TODO Убрать в частичное представление галереи
-        <script>
-            $(document).ready(function () {
-                $('.fancybox').fancybox();
-                $("a[href$='.jpg'],a[href$='.jpeg'],a[href$='.png'],a[href$='.gif'],a[href$='Image']").attr('rel', 'gallery').fancybox();
-            });
-        </script>
-    }
-
+    
     <script>
         function FixUnobtrusiveValidate(sel) {
             $(sel).removeData("validator");

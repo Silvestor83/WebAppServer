@@ -4762,7 +4762,7 @@ a.list-group-item-danger.active:focus {
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
 }
 .panel-body {
-  padding: 15px;
+  padding: 5px;
 }
 .panel > .list-group {
   margin-bottom: 0;
@@ -5834,6 +5834,7 @@ td.visible-print {
 /*����� ��� ��������� ����� �����*/
 /*�������� ������� ����� Tahoma*/
 /*����� ���� ������ � �����*/
+/*������� ��� �������*/
 body {
   background: url(../images/bg.jpg) #0d0d0d center top no-repeat;
 }
@@ -5891,4 +5892,7 @@ a:focus {
 }
 .close {
   opacity: 0.4;
+}
+.panel {
+  border-radius: 0 0 4px 4px;
 }
